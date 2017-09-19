@@ -4,6 +4,9 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -11,12 +14,11 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
- * 队列模式.
- * 生产者.
+ * quque消费者
  * @author Administrator
  *
  */
-public class Producer {
+public class Consumer {
 	private static final String url = "tcp://192.168.1.105:61616";
 	private static final String ququeNmae = "queue-one";
 	
@@ -33,23 +35,28 @@ public class Producer {
 		//4.创建会话
 		Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		
-		//5,创建一个目标
+		//前5步与生产者一样.
+		//5,创建一个目标  , 这个目前是当前操作消息列队的名字
 		Destination destination =  session.createQueue(ququeNmae);
 		
-		//6,创建一个生产者
-		MessageProducer mp = session.createProducer(destination);
+		//6,创建一个消费者
+		MessageConsumer mc = session.createConsumer(destination);
 		
-		for (int i = 0; i < 100; i++) {
-			//7.创建消息
-			TextMessage tm = session.createTextMessage("test"+i);
+		//7,创建一个监听器
+		mc.setMessageListener(new MessageListener() {
 			
-			//8.发布消息
-			mp.send(tm);
-			System.out.println("send:"+tm.getText());
-		}
+			public void onMessage(Message message) {
+				TextMessage tm = (TextMessage) message;
+				try {
+					System.out.println("接受消息:"+tm.getText());
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		
-		//9,关闭连接
-		conn.close();
+		
+		//8,关闭连接 链接是异步的,再程序退出的时候才关闭.
+		//conn.close();
 	}
-	
 }
