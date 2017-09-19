@@ -10,7 +10,11 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-
+/**
+ * 队列模式.
+ * @author Administrator
+ *
+ */
 public class Producer {
 	private static final String url = "tcp://192.168.1.105:61616";
 	private static final String ququeNmae = "queue-one";
